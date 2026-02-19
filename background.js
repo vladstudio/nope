@@ -1,33 +1,55 @@
 function setIcon(enabled) {
-  chrome.action.setIcon({ path: enabled ? 'icon/nope-on.png' : 'icon/nope-off.png' });
+  const name = enabled ? 'nope-on' : 'nope-off';
+  chrome.action.setIcon({
+    path: {
+      16: `icon/${name}-16.png`,
+      32: `icon/${name}-32.png`,
+      48: `icon/${name}-48.png`,
+      128: `icon/${name}-128.png`
+    }
+  });
 }
 
-// Set icon on startup
-chrome.storage.local.get({ enabled: false }, (data) => setIcon(data.enabled));
+function updateRules(enabled, domains) {
+  // Remove all existing rules first
+  chrome.declarativeNetRequest.getDynamicRules((existing) => {
+    const removeIds = existing.map(r => r.id);
+    const addRules = [];
 
-// Update icon when storage changes
-chrome.storage.onChanged.addListener((changes) => {
-  if (changes.enabled) setIcon(changes.enabled.newValue);
-});
-
-chrome.webNavigation.onBeforeNavigate.addListener((details) => {
-  if (details.frameId !== 0) return;
-
-  chrome.storage.local.get({ enabled: false, domains: [] }, (data) => {
-    if (!data.enabled) return;
-
-    let url;
-    try { url = new URL(details.url); } catch { return; }
-    const host = url.hostname.replace(/^www\./, '');
-
-    const blocked = data.domains.some(d =>
-      host === d || host.endsWith('.' + d)
-    );
-
-    if (blocked) {
-      chrome.tabs.update(details.tabId, {
-        url: chrome.runtime.getURL('blocked.html')
+    if (enabled && domains.length) {
+      domains.forEach((domain, i) => {
+        addRules.push({
+          id: i + 1,
+          priority: 1,
+          action: {
+            type: 'redirect',
+            redirect: { extensionPath: '/blocked.html' }
+          },
+          condition: {
+            urlFilter: `||${domain}`,
+            resourceTypes: ['main_frame']
+          }
+        });
       });
     }
+
+    chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: removeIds,
+      addRules
+    });
+  });
+}
+
+// Init on startup
+chrome.storage.local.get({ enabled: false, domains: [] }, (data) => {
+  setIcon(data.enabled);
+  updateRules(data.enabled, data.domains);
+});
+
+// React to storage changes
+chrome.storage.onChanged.addListener(() => {
+  chrome.storage.local.get({ enabled: false, domains: [] }, (data) => {
+    setIcon(data.enabled);
+    updateRules(data.enabled, data.domains);
   });
 });

@@ -3,16 +3,26 @@
   "name": "Nope",
   "version": "1.0",
   "description": "Block distracting websites with style",
-  "permissions": ["storage", "webNavigation"],
+  "permissions": ["storage", "declarativeNetRequest"],
   "host_permissions": ["*://*/*"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon/nope-off.png"
+    "default_icon": {
+      "16": "icon/nope-off-16.png",
+      "32": "icon/nope-off-32.png",
+      "48": "icon/nope-off-48.png",
+      "128": "icon/nope-off-128.png"
+    }
   },
   "icons": {
-    "128": "icon/nope-on.png"
-  }
+    "48": "icon/nope-on-48.png",
+    "128": "icon/nope-on-128.png"
+  },
+  "web_accessible_resources": [{
+    "resources": ["blocked.html", "blocked.js", "gifs/*"],
+    "matches": ["*://*/*"]
+  }]
 }

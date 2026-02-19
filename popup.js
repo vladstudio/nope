@@ -34,6 +34,6 @@ save.addEventListener('click', () => {
     .map(d => d.trim().toLowerCase())
     .filter(Boolean);
   chrome.storage.local.set({ domains: list });
-  status.style.display = 'block';
-  setTimeout(() => status.style.display = 'none', 1500);
+  editor.style.display = 'none';
+  editLink.style.display = 'block';
 });
