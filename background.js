@@ -15,11 +15,13 @@ function updateRules(enabled, domains) {
   chrome.declarativeNetRequest.getDynamicRules((existing) => {
     const removeIds = existing.map(r => r.id);
     const addRules = [];
+    let nextId = 1;
 
     if (enabled && domains.length) {
-      domains.forEach((domain, i) => {
+      const unique = [...new Set(domains.map(d => d.trim().toLowerCase()).filter(Boolean))];
+      unique.forEach((domain) => {
         addRules.push({
-          id: i + 1,
+          id: nextId++,
           priority: 1,
           action: {
             type: 'redirect',
