@@ -5,9 +5,13 @@ const domains = document.getElementById('domains');
 const save = document.getElementById('save');
 const status = document.getElementById('status');
 
+const iconOff = document.getElementById('iconOff');
+const iconOn = document.getElementById('iconOn');
+
 function updateToggle(enabled) {
-  toggle.textContent = enabled ? 'ON' : 'OFF';
-  toggle.className = enabled ? 'on' : 'off';
+  toggle.className = enabled ? 'track on' : 'track';
+  iconOff.classList.toggle('dim', enabled);
+  iconOn.classList.toggle('dim', !enabled);
 }
 
 chrome.storage.local.get({ enabled: false, domains: [] }, (data) => {

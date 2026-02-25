@@ -22,7 +22,7 @@
     "128": "icon/nope-on-128.png"
   },
   "web_accessible_resources": [{
-    "resources": ["blocked.html", "blocked.js", "gifs/*"],
+    "resources": ["blocked.html", "blocked.js", "icon/nope-text.svg"],
     "matches": ["*://*/*"]
   }]
 }
