@@ -24,8 +24,21 @@ toggle.addEventListener('click', () => {
     const next = !data.enabled;
     chrome.storage.local.set({ enabled: next });
     updateToggle(next);
+    setIcon(next);
   });
 });
+
+function setIcon(enabled) {
+  const name = enabled ? 'nope-on' : 'nope-off';
+  chrome.action.setIcon({
+    path: {
+      16: `icon/${name}-16.png`,
+      32: `icon/${name}-32.png`,
+      48: `icon/${name}-48.png`,
+      128: `icon/${name}-128.png`
+    }
+  });
+}
 
 editLink.addEventListener('click', () => {
   editor.style.display = editor.style.display === 'none' ? 'block' : 'block';
