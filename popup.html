@@ -30,11 +30,14 @@ body {
 }
 .track.on .knob { left: 40px; }
 
-#editLink {
-  display: block; text-align: center; margin-top: 12px;
-  color: #999; font-size: 12px; cursor: pointer; text-decoration: underline;
+.footer {
+  display: flex; justify-content: space-between; margin-top: 12px;
+  font-size: 12px;
 }
+#editLink { color: #999; cursor: pointer; text-decoration: underline; }
 #editLink:hover { color: #666; }
+.brand { color: #999; text-decoration: underline; }
+.brand:hover { color: #666; }
 
 #editor { display: none; margin-top: 12px; }
 #domains {
@@ -51,8 +54,8 @@ body {
 @media (prefers-color-scheme: dark) {
   body { background: #1a1a1a; color: #fff; }
   .track { background: #444; }
-  #editLink { color: #888; }
-  #editLink:hover { color: #aaa; }
+  #editLink, .brand { color: #888; }
+  #editLink:hover, .brand:hover { color: #aaa; }
   #domains { border-color: #444; background: #222; color: #fff; }
 }
 </style>
@@ -63,7 +66,10 @@ body {
     <div class="track" id="toggle"><div class="knob"></div></div>
     <img id="iconOn" src="icon/nope-on.svg" alt="on">
   </div>
-  <a id="editLink">Edit blocked sites</a>
+  <div class="footer">
+    <a id="editLink">Edit blocked sites</a>
+    <a href="https://nope.vlad.studio" target="_blank" class="brand">Nope</a>
+  </div>
   <div id="editor">
     <textarea id="domains" placeholder="example.com&#10;reddit.com&#10;twitter.com"></textarea>
     <button id="save">Save</button>
