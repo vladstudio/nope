@@ -10,48 +10,63 @@ function setIcon(enabled) {
   });
 }
 
-function updateRules(enabled, domains) {
-  // Remove all existing rules first
-  chrome.declarativeNetRequest.getDynamicRules((existing) => {
-    const removeIds = existing.map(r => r.id);
-    const addRules = [];
-    let nextId = 1;
+let updatePending = false;
+let updateQueued = false;
 
-    if (enabled && domains.length) {
-      const unique = [...new Set(domains.map(d => d.trim().toLowerCase()).filter(Boolean))];
-      unique.forEach((domain) => {
-        addRules.push({
-          id: nextId++,
-          priority: 1,
-          action: {
-            type: 'redirect',
-            redirect: { extensionPath: '/blocked.html' }
-          },
-          condition: {
-            urlFilter: `||${domain}`,
-            resourceTypes: ['main_frame']
-          }
+function updateRules() {
+  if (updatePending) {
+    updateQueued = true;
+    return;
+  }
+  updatePending = true;
+
+  chrome.storage.local.get({ enabled: false, domains: [] }, (data) => {
+    chrome.declarativeNetRequest.getDynamicRules((existing) => {
+      const removeIds = existing.map(r => r.id);
+      const addRules = [];
+      let nextId = 1;
+
+      if (data.enabled && data.domains.length) {
+        const unique = [...new Set(data.domains.map(d => d.trim().toLowerCase()).filter(Boolean))];
+        unique.forEach((domain) => {
+          addRules.push({
+            id: nextId++,
+            priority: 1,
+            action: {
+              type: 'redirect',
+              redirect: { extensionPath: '/blocked.html' }
+            },
+            condition: {
+              urlFilter: `||${domain}`,
+              resourceTypes: ['main_frame']
+            }
+          });
         });
-      });
-    }
+      }
 
-    chrome.declarativeNetRequest.updateDynamicRules({
-      removeRuleIds: removeIds,
-      addRules
+      chrome.declarativeNetRequest.updateDynamicRules({
+        removeRuleIds: removeIds,
+        addRules
+      }, () => {
+        updatePending = false;
+        if (updateQueued) {
+          updateQueued = false;
+          updateRules();
+        }
+      });
     });
   });
 }
 
-// Init on startup
-chrome.storage.local.get({ enabled: false, domains: [] }, (data) => {
-  setIcon(data.enabled);
-  updateRules(data.enabled, data.domains);
-});
-
-// React to storage changes
-chrome.storage.onChanged.addListener(() => {
+function refresh() {
   chrome.storage.local.get({ enabled: false, domains: [] }, (data) => {
     setIcon(data.enabled);
-    updateRules(data.enabled, data.domains);
   });
-});
+  updateRules();
+}
+
+// Init on startup
+refresh();
+
+// React to storage changes
+chrome.storage.onChanged.addListener(refresh);
