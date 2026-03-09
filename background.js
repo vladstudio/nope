@@ -65,8 +65,10 @@ function refresh() {
   updateRules();
 }
 
-// Init on startup
+// Init on startup and service worker wake
 refresh();
+chrome.runtime.onStartup.addListener(refresh);
+chrome.runtime.onInstalled.addListener(refresh);
 
 // React to storage changes
 chrome.storage.onChanged.addListener(refresh);
